@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="管理簿">
+
 <title>管理簿</title>
 
 <style>
@@ -36,22 +37,24 @@ header h1{
 
 .tabs{
   display:flex;
-  gap:12px;
-  padding:14px 20px;
+  gap:8px;
+  padding:14px 12px;
   background:white;
   position:sticky;
   top:0;
   z-index:10;
+  overflow-x:auto;
 }
 
 .tab{
   border:0;
   border-radius:30px;
-  padding:14px 22px;
-  font-size:17px;
+  padding:13px 17px;
+  font-size:15px;
   font-weight:700;
   background:#eef2ff;
   color:#3b82f6;
+  white-space:nowrap;
 }
 
 .tab.active{
@@ -120,6 +123,18 @@ button{
   background:white;
   font-size:17px;
   font-weight:700;
+}
+
+.printButton{
+  width:100%;
+  margin-top:12px;
+  padding:16px;
+  border:0;
+  border-radius:17px;
+  background:#16a34a;
+  color:white;
+  font-size:18px;
+  font-weight:800;
 }
 
 .danger{
@@ -221,6 +236,7 @@ button{
 .monthRow{
   display:flex;
   justify-content:space-between;
+  gap:10px;
   padding:12px 0;
   border-bottom:1px solid #e5e7eb;
 }
@@ -240,7 +256,23 @@ button{
   font-weight:700;
 }
 
+.yearBox{
+  margin-top:20px;
+}
+
+.yearRow{
+  padding:15px 0;
+  border-bottom:1px solid #e5e7eb;
+}
+
+.yearTitle{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:6px;
+}
+
 @media(max-width:500px){
+
   main{
     padding:12px;
   }
@@ -253,10 +285,56 @@ button{
     font-size:25px;
   }
 
-  .tab{
-    padding:12px 17px;
-    font-size:15px;
+  .summaryValue{
+    font-size:21px;
   }
+}
+
+
+/* 印刷用 */
+@media print{
+
+  body{
+    background:white;
+  }
+
+  header,
+  .tabs,
+  #inputTab,
+  .noPrint{
+    display:none !important;
+  }
+
+  main{
+    max-width:none;
+    padding:0;
+  }
+
+  .card{
+    box-shadow:none;
+    border:0;
+    padding:0;
+  }
+
+  h2{
+    font-size:24px;
+  }
+
+  .item{
+    break-inside:avoid;
+  }
+
+  .actions{
+    display:none;
+  }
+
+  .printTitle{
+    display:block !important;
+  }
+}
+
+.printTitle{
+  display:none;
 }
 </style>
 </head>
@@ -268,78 +346,191 @@ button{
 </header>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('input')">入力</button>
-  <button class="tab" onclick="showTab('month')">月別集計</button>
-  <button class="tab" onclick="showTab('history')">履歴</button>
+
+  <button class="tab active"
+    onclick="showTab('input')">
+    入力
+  </button>
+
+  <button class="tab"
+    onclick="showTab('month')">
+    月別集計
+  </button>
+
+  <button class="tab"
+    onclick="showTab('year')">
+    年別集計
+  </button>
+
+  <button class="tab"
+    onclick="showTab('history')">
+    履歴
+  </button>
+
 </div>
 
 <main>
 
 <!-- 入力 -->
+
 <section id="inputTab">
 
 <div class="card">
 
 <h2>商品を登録</h2>
 
-<div id="editingBox" class="editing hidden">
-  ✏️ 修正モードです
+<div id="editingBox"
+class="editing hidden">
+✏️ 修正モードです
 </div>
 
 <label>日付</label>
 <input type="date" id="date">
 
 <label>店名</label>
-<input type="text" id="store" placeholder="店名を入力">
+<input type="text"
+id="store"
+placeholder="店名を入力">
 
 <label>区分</label>
+
 <select id="category">
-  <option value="品物">品物</option>
-  <option value="その他">その他</option>
-  <option value="仕入れ">仕入れ</option>
-  <option value="販売">販売</option>
+
+<option value="品物">
+品物
+</option>
+
+<option value="その他">
+その他
+</option>
+
+<option value="仕入れ">
+仕入れ
+</option>
+
+<option value="販売">
+販売
+</option>
+
 </select>
 
 <label>商品名</label>
-<input type="text" id="product" placeholder="商品名を入力">
+
+<input type="text"
+id="product"
+placeholder="商品名を入力">
 
 <label>数量</label>
-<input type="number" id="quantity" value="1" min="1">
+
+<input type="number"
+id="quantity"
+value="1"
+min="1">
 
 <label>支出（1個）</label>
-<input type="number" id="expense" placeholder="0" min="0">
+
+<input type="number"
+id="expense"
+placeholder="0"
+min="0">
 
 <label>収入（1個）</label>
-<input type="number" id="income" placeholder="0" min="0">
 
-<button class="primary" id="saveButton" onclick="saveData()">
-  登録する
+<input type="number"
+id="income"
+placeholder="0"
+min="0">
+
+<button
+class="primary"
+id="saveButton"
+onclick="saveData()">
+
+登録する
+
 </button>
 
-<button class="secondary hidden" id="cancelEditButton" onclick="cancelEdit()">
-  修正をキャンセル
+<button
+class="secondary hidden"
+id="cancelEditButton"
+onclick="cancelEdit()">
+
+修正をキャンセル
+
 </button>
 
 </div>
 
+
 <div class="card">
-  <h2>現在の登録状況</h2>
-  <div id="recentList"></div>
+
+<h2>現在の登録状況</h2>
+
+<div id="recentList"></div>
+
 </div>
 
 </section>
 
 
 <!-- 月別集計 -->
-<section id="monthTab" class="hidden">
+
+<section
+id="monthTab"
+class="hidden">
 
 <div class="card">
-<h2>月別集計</h2>
+
+<h2>📅 月別集計</h2>
 
 <label>集計する月</label>
-<input type="month" id="monthSelect" onchange="renderMonth()">
+
+<input
+type="month"
+id="monthSelect"
+onchange="renderMonth()">
 
 <div id="monthSummary"></div>
+
+<button
+class="printButton"
+onclick="printMonth()">
+
+🖨️ この月をプリント
+
+</button>
+
+</div>
+
+</section>
+
+
+<!-- 年別集計 -->
+
+<section
+id="yearTab"
+class="hidden">
+
+<div class="card">
+
+<h2>📆 年別集計</h2>
+
+<label>集計する年</label>
+
+<select
+id="yearSelect"
+onchange="renderYear()">
+</select>
+
+<div id="yearSummary"></div>
+
+<button
+class="printButton"
+onclick="printYear()">
+
+🖨️ この年をプリント
+
+</button>
 
 </div>
 
@@ -347,103 +538,263 @@ button{
 
 
 <!-- 履歴 -->
-<section id="historyTab" class="hidden">
+
+<section
+id="historyTab"
+class="hidden">
 
 <div class="card">
-<h2>登録履歴</h2>
+
+<h2>📋 登録履歴</h2>
+
 <div id="historyList"></div>
+
+<button
+class="printButton"
+onclick="printHistory()">
+
+🖨️ 履歴をプリント
+
+</button>
+
 </div>
 
 </section>
 
 </main>
 
+
 <script>
 
-let records = JSON.parse(localStorage.getItem("kanriboRecords") || "[]");
+let records =
+JSON.parse(
+localStorage.getItem("kanriboRecords") || "[]"
+);
+
 let editingId = null;
 
 
 /* 今日の日付 */
+
 function todayString(){
+
   const d = new Date();
+
   const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,"0");
-  const day = String(d.getDate()).padStart(2,"0");
+
+  const m =
+  String(d.getMonth()+1).padStart(2,"0");
+
+  const day =
+  String(d.getDate()).padStart(2,"0");
+
   return `${y}-${m}-${day}`;
 }
 
 
 /* 初期設定 */
-document.getElementById("date").value = todayString();
+
+document.getElementById("date")
+.value = todayString();
 
 const now = new Date();
-document.getElementById("monthSelect").value =
-  `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+
+document.getElementById("monthSelect")
+.value =
+`${now.getFullYear()}-${
+String(now.getMonth()+1).padStart(2,"0")
+}`;
+
+
+/* 年選択 */
+
+function setupYearSelect(){
+
+  const select =
+  document.getElementById("yearSelect");
+
+  const currentYear =
+  new Date().getFullYear();
+
+  const years = new Set();
+
+  years.add(currentYear);
+
+  records.forEach(r => {
+
+    if(r.date){
+
+      years.add(
+        Number(r.date.substring(0,4))
+      );
+
+    }
+
+  });
+
+  const sorted =
+  [...years].sort((a,b)=>b-a);
+
+  select.innerHTML =
+  sorted.map(y =>
+    `<option value="${y}">
+      ${y}年
+    </option>`
+  ).join("");
+
+}
 
 
 /* タブ切り替え */
+
 function showTab(tab){
 
-  document.getElementById("inputTab").classList.add("hidden");
-  document.getElementById("monthTab").classList.add("hidden");
-  document.getElementById("historyTab").classList.add("hidden");
+  document.getElementById("inputTab")
+  .classList.add("hidden");
 
-  const tabs = document.querySelectorAll(".tab");
-  tabs.forEach(t => t.classList.remove("active"));
+  document.getElementById("monthTab")
+  .classList.add("hidden");
+
+  document.getElementById("yearTab")
+  .classList.add("hidden");
+
+  document.getElementById("historyTab")
+  .classList.add("hidden");
+
+
+  const tabs =
+  document.querySelectorAll(".tab");
+
+  tabs.forEach(t =>
+    t.classList.remove("active")
+  );
+
 
   if(tab === "input"){
-    document.getElementById("inputTab").classList.remove("hidden");
+
+    document.getElementById("inputTab")
+    .classList.remove("hidden");
+
     tabs[0].classList.add("active");
+
   }
+
 
   if(tab === "month"){
-    document.getElementById("monthTab").classList.remove("hidden");
+
+    document.getElementById("monthTab")
+    .classList.remove("hidden");
+
     tabs[1].classList.add("active");
+
     renderMonth();
+
   }
 
-  if(tab === "history"){
-    document.getElementById("historyTab").classList.remove("hidden");
+
+  if(tab === "year"){
+
+    document.getElementById("yearTab")
+    .classList.remove("hidden");
+
     tabs[2].classList.add("active");
-    renderHistory();
+
+    setupYearSelect();
+
+    renderYear();
+
   }
+
+
+  if(tab === "history"){
+
+    document.getElementById("historyTab")
+    .classList.remove("hidden");
+
+    tabs[3].classList.add("active");
+
+    renderHistory();
+
+  }
+
 }
 
 
 /* 保存 */
+
 function saveData(){
 
-  const date = document.getElementById("date").value;
-  const store = document.getElementById("store").value.trim();
-  const category = document.getElementById("category").value;
-  const product = document.getElementById("product").value.trim();
-  const quantity = Number(document.getElementById("quantity").value) || 0;
-  const expense = Number(document.getElementById("expense").value) || 0;
-  const income = Number(document.getElementById("income").value) || 0;
+  const date =
+  document.getElementById("date").value;
+
+  const store =
+  document.getElementById("store")
+  .value.trim();
+
+  const category =
+  document.getElementById("category").value;
+
+  const product =
+  document.getElementById("product")
+  .value.trim();
+
+  const quantity =
+  Number(
+    document.getElementById("quantity").value
+  ) || 0;
+
+  const expense =
+  Number(
+    document.getElementById("expense").value
+  ) || 0;
+
+  const income =
+  Number(
+    document.getElementById("income").value
+  ) || 0;
+
 
   if(!date){
+
     alert("日付を入力してください");
+
     return;
+
   }
+
 
   if(!product){
+
     alert("商品名を入力してください");
+
     return;
+
   }
 
+
   if(quantity <= 0){
+
     alert("数量を入力してください");
+
     return;
+
   }
+
 
   if(editingId !== null){
 
-    const index = records.findIndex(r => r.id === editingId);
+    const index =
+    records.findIndex(
+      r => r.id === editingId
+    );
+
 
     if(index !== -1){
+
       records[index] = {
+
         ...records[index],
+
         date,
         store,
         category,
@@ -451,352 +802,1244 @@ function saveData(){
         quantity,
         expense,
         income
+
       };
+
     }
+
 
     alert("修正して再登録しました");
 
     editingId = null;
 
-    document.getElementById("saveButton").textContent = "登録する";
-    document.getElementById("cancelEditButton").classList.add("hidden");
-    document.getElementById("editingBox").classList.add("hidden");
+    document.getElementById(
+      "saveButton"
+    ).textContent = "登録する";
+
+
+    document.getElementById(
+      "cancelEditButton"
+    ).classList.add("hidden");
+
+
+    document.getElementById(
+      "editingBox"
+    ).classList.add("hidden");
+
 
   }else{
 
     const record = {
+
       id: Date.now(),
+
       date,
+
       store,
+
       category,
+
       product,
+
       quantity,
+
       expense,
+
       income
+
     };
+
 
     records.unshift(record);
 
     alert("登録しました");
+
   }
 
-  localStorage.setItem("kanriboRecords", JSON.stringify(records));
-
-  clearForm();
-  renderRecent();
-  renderHistory();
-  renderMonth();
-}
-
-
-/* 入力欄クリア */
-function clearForm(){
-
-  document.getElementById("date").value = todayString();
-  document.getElementById("store").value = "";
-  document.getElementById("category").value = "品物";
-  document.getElementById("product").value = "";
-  document.getElementById("quantity").value = 1;
-  document.getElementById("expense").value = "";
-  document.getElementById("income").value = "";
-}
-
-
-/* 修正 */
-function editRecord(id){
-
-  const record = records.find(r => r.id === id);
-
-  if(!record) return;
-
-  editingId = id;
-
-  document.getElementById("date").value = record.date;
-  document.getElementById("store").value = record.store || "";
-  document.getElementById("category").value = record.category || "品物";
-  document.getElementById("product").value = record.product;
-  document.getElementById("quantity").value = record.quantity;
-  document.getElementById("expense").value = record.expense;
-  document.getElementById("income").value = record.income;
-
-  document.getElementById("saveButton").textContent =
-    "修正して再登録";
-
-  document.getElementById("cancelEditButton")
-    .classList.remove("hidden");
-
-  document.getElementById("editingBox")
-    .classList.remove("hidden");
-
-  showTab("input");
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-}
-
-
-/* 修正キャンセル */
-function cancelEdit(){
-
-  editingId = null;
-
-  document.getElementById("saveButton").textContent =
-    "登録する";
-
-  document.getElementById("cancelEditButton")
-    .classList.add("hidden");
-
-  document.getElementById("editingBox")
-    .classList.add("hidden");
-
-  clearForm();
-}
-
-
-/* 削除 */
-function deleteRecord(id){
-
-  const record = records.find(r => r.id === id);
-
-  if(!record) return;
-
-  const ok = confirm(
-    `「${record.product}」を削除しますか？\n\nこの操作は元に戻せません。`
-  );
-
-  if(!ok) return;
-
-  records = records.filter(r => r.id !== id);
 
   localStorage.setItem(
     "kanriboRecords",
     JSON.stringify(records)
   );
 
-  alert("削除しました");
+
+  clearForm();
+
+  setupYearSelect();
 
   renderRecent();
+
   renderHistory();
+
   renderMonth();
+
+  renderYear();
+
 }
 
 
-/* 金額表示 */
+/* 入力欄クリア */
+
+function clearForm(){
+
+  document.getElementById("date")
+  .value = todayString();
+
+  document.getElementById("store")
+  .value = "";
+
+  document.getElementById("category")
+  .value = "品物";
+
+  document.getElementById("product")
+  .value = "";
+
+  document.getElementById("quantity")
+  .value = 1;
+
+  document.getElementById("expense")
+  .value = "";
+
+  document.getElementById("income")
+  .value = "";
+
+}
+
+
+/* 修正 */
+
+function editRecord(id){
+
+  const record =
+  records.find(r => r.id === id);
+
+  if(!record) return;
+
+  editingId = id;
+
+
+  document.getElementById("date")
+  .value = record.date;
+
+  document.getElementById("store")
+  .value = record.store || "";
+
+  document.getElementById("category")
+  .value =
+  record.category || "品物";
+
+  document.getElementById("product")
+  .value = record.product;
+
+  document.getElementById("quantity")
+  .value = record.quantity;
+
+  document.getElementById("expense")
+  .value = record.expense;
+
+  document.getElementById("income")
+  .value = record.income;
+
+
+  document.getElementById("saveButton")
+  .textContent =
+  "修正して再登録";
+
+
+  document.getElementById(
+    "cancelEditButton"
+  ).classList.remove("hidden");
+
+
+  document.getElementById(
+    "editingBox"
+  ).classList.remove("hidden");
+
+
+  showTab("input");
+
+
+  window.scrollTo({
+
+    top:0,
+
+    behavior:"smooth"
+
+  });
+
+}
+
+
+/* 修正キャンセル */
+
+function cancelEdit(){
+
+  editingId = null;
+
+  document.getElementById(
+    "saveButton"
+  ).textContent = "登録する";
+
+
+  document.getElementById(
+    "cancelEditButton"
+  ).classList.add("hidden");
+
+
+  document.getElementById(
+    "editingBox"
+  ).classList.add("hidden");
+
+
+  clearForm();
+
+}
+
+
+/* 削除 */
+
+function deleteRecord(id){
+
+  const record =
+  records.find(r => r.id === id);
+
+  if(!record) return;
+
+
+  const ok =
+  confirm(
+    `「${record.product}」を削除しますか？\n\nこの操作は元に戻せません。`
+  );
+
+
+  if(!ok) return;
+
+
+  records =
+  records.filter(r => r.id !== id);
+
+
+  localStorage.setItem(
+    "kanriboRecords",
+    JSON.stringify(records)
+  );
+
+
+  alert("削除しました");
+
+
+  setupYearSelect();
+
+  renderRecent();
+
+  renderHistory();
+
+  renderMonth();
+
+  renderYear();
+
+}
+
+
+/* 金額 */
+
 function yen(value){
-  return Number(value || 0).toLocaleString("ja-JP") + "円";
+
+  return Number(value || 0)
+  .toLocaleString("ja-JP")
+  + "円";
+
 }
 
 
 /* 最近の登録 */
+
 function renderRecent(){
 
-  const area = document.getElementById("recentList");
+  const area =
+  document.getElementById("recentList");
 
-  const list = records.slice(0,5);
+  const list =
+  records.slice(0,5);
+
 
   if(list.length === 0){
-    area.innerHTML = '<div class="empty">まだ登録データがありません</div>';
+
+    area.innerHTML =
+    '<div class="empty">まだ登録データがありません</div>';
+
     return;
+
   }
 
-  area.innerHTML = list.map(r => {
 
-    const totalExpense = r.expense * r.quantity;
-    const totalIncome = r.income * r.quantity;
-    const profit = totalIncome - totalExpense;
+  area.innerHTML =
+  list.map(r => {
+
+    const totalExpense =
+    r.expense * r.quantity;
+
+    const totalIncome =
+    r.income * r.quantity;
+
+    const profit =
+    totalIncome - totalExpense;
+
 
     return `
+
       <div class="item">
 
         <div class="itemTop">
-          <div class="itemName">${escapeHtml(r.product)}</div>
-          <div class="itemDate">${r.date}</div>
+
+          <div class="itemName">
+            ${escapeHtml(r.product)}
+          </div>
+
+          <div class="itemDate">
+            ${r.date}
+          </div>
+
         </div>
 
         <div class="itemInfo">
-          店名：${escapeHtml(r.store || "-")}<br>
-          区分：${escapeHtml(r.category)}<br>
-          数量：${r.quantity}<br>
-          支出：${yen(totalExpense)}<br>
-          収入：${yen(totalIncome)}<br>
-          利益：<span class="balance">${yen(profit)}</span>
+
+          店名：
+          ${escapeHtml(r.store || "-")}
+          <br>
+
+          区分：
+          ${escapeHtml(r.category)}
+          <br>
+
+          数量：
+          ${r.quantity}
+          <br>
+
+          支出：
+          ${yen(totalExpense)}
+          <br>
+
+          収入：
+          ${yen(totalIncome)}
+          <br>
+
+          利益：
+          <span class="balance">
+            ${yen(profit)}
+          </span>
+
         </div>
 
         <div class="actions">
-          <button class="edit" onclick="editRecord(${r.id})">
-            ✏️ 修正
+
+          <button
+          class="edit"
+          onclick="editRecord(${r.id})">
+
+          ✏️ 修正
+
           </button>
 
-          <button class="danger" onclick="deleteRecord(${r.id})">
-            🗑️ 削除
+          <button
+          class="danger"
+          onclick="deleteRecord(${r.id})">
+
+          🗑️ 削除
+
           </button>
+
         </div>
 
       </div>
+
     `;
+
   }).join("");
+
 }
 
 
 /* 履歴 */
+
 function renderHistory(){
 
-  const area = document.getElementById("historyList");
+  const area =
+  document.getElementById("historyList");
+
 
   if(records.length === 0){
-    area.innerHTML = '<div class="empty">まだ登録データがありません</div>';
+
+    area.innerHTML =
+    '<div class="empty">まだ登録データがありません</div>';
+
     return;
+
   }
 
-  area.innerHTML = records.map(r => {
 
-    const totalExpense = r.expense * r.quantity;
-    const totalIncome = r.income * r.quantity;
-    const profit = totalIncome - totalExpense;
+  area.innerHTML =
+  records.map(r => {
+
+    const totalExpense =
+    r.expense * r.quantity;
+
+    const totalIncome =
+    r.income * r.quantity;
+
+    const profit =
+    totalIncome - totalExpense;
+
 
     return `
+
       <div class="item">
 
         <div class="itemTop">
+
           <div>
-            <div class="itemName">${escapeHtml(r.product)}</div>
-            <div class="itemDate">${r.date}</div>
+
+            <div class="itemName">
+              ${escapeHtml(r.product)}
+            </div>
+
+            <div class="itemDate">
+              ${r.date}
+            </div>
+
           </div>
+
         </div>
+
 
         <div class="itemInfo">
-          店名：${escapeHtml(r.store || "-")}<br>
-          区分：${escapeHtml(r.category)}<br>
-          数量：${r.quantity}<br>
-          支出：${yen(totalExpense)}<br>
-          収入：${yen(totalIncome)}<br>
-          利益：${yen(profit)}
+
+          店名：
+          ${escapeHtml(r.store || "-")}
+          <br>
+
+          区分：
+          ${escapeHtml(r.category)}
+          <br>
+
+          数量：
+          ${r.quantity}
+          <br>
+
+          支出：
+          ${yen(totalExpense)}
+          <br>
+
+          収入：
+          ${yen(totalIncome)}
+          <br>
+
+          利益：
+          ${yen(profit)}
+
         </div>
 
+
         <div class="actions">
-          <button class="edit" onclick="editRecord(${r.id})">
-            ✏️ 修正
+
+          <button
+          class="edit"
+          onclick="editRecord(${r.id})">
+
+          ✏️ 修正
+
           </button>
 
-          <button class="danger" onclick="deleteRecord(${r.id})">
-            🗑️ 削除
+
+          <button
+          class="danger"
+          onclick="deleteRecord(${r.id})">
+
+          🗑️ 削除
+
           </button>
+
         </div>
 
       </div>
+
     `;
+
   }).join("");
+
 }
 
 
 /* 月別集計 */
+
 function renderMonth(){
 
-  const month = document.getElementById("monthSelect").value;
+  const month =
+  document.getElementById("monthSelect")
+  .value;
 
   if(!month) return;
 
-  const list = records.filter(r =>
+
+  const list =
+  records.filter(r =>
     r.date.startsWith(month)
   );
 
+
   let totalExpense = 0;
+
   let totalIncome = 0;
+
   let totalQuantity = 0;
 
+
   list.forEach(r => {
-    totalExpense += r.expense * r.quantity;
-    totalIncome += r.income * r.quantity;
-    totalQuantity += r.quantity;
+
+    totalExpense +=
+    r.expense * r.quantity;
+
+    totalIncome +=
+    r.income * r.quantity;
+
+    totalQuantity +=
+    r.quantity;
+
   });
 
-  const profit = totalIncome - totalExpense;
 
-  const area = document.getElementById("monthSummary");
+  const profit =
+  totalIncome - totalExpense;
+
+
+  const area =
+  document.getElementById("monthSummary");
+
 
   area.innerHTML = `
 
     <div class="summary">
 
       <div class="summaryBox">
-        <div class="summaryTitle">支出</div>
+
+        <div class="summaryTitle">
+          支出
+        </div>
+
         <div class="summaryValue expense">
           ${yen(totalExpense)}
         </div>
+
       </div>
 
+
       <div class="summaryBox">
-        <div class="summaryTitle">収入</div>
+
+        <div class="summaryTitle">
+          収入
+        </div>
+
         <div class="summaryValue income">
           ${yen(totalIncome)}
         </div>
+
       </div>
 
+
       <div class="summaryBox">
-        <div class="summaryTitle">利益</div>
+
+        <div class="summaryTitle">
+          利益
+        </div>
+
         <div class="summaryValue balance">
           ${yen(profit)}
         </div>
+
       </div>
 
+
       <div class="summaryBox">
-        <div class="summaryTitle">数量</div>
+
+        <div class="summaryTitle">
+          数量
+        </div>
+
         <div class="summaryValue">
           ${totalQuantity}
         </div>
+
       </div>
 
     </div>
 
+
     <h3 style="margin-top:28px;">
-      ${month.replace("-", "年")}月の明細
+      ${month.substring(0,4)}年
+      ${Number(month.substring(5,7))}月の明細
     </h3>
+
 
     ${
       list.length === 0
-      ? '<div class="empty">この月のデータはありません</div>'
-      : list.map(r => {
 
-          const expense = r.expense * r.quantity;
-          const income = r.income * r.quantity;
+      ?
+
+      '<div class="empty">この月のデータはありません</div>'
+
+      :
+
+      list.map(r => {
+
+        const expense =
+        r.expense * r.quantity;
+
+        const income =
+        r.income * r.quantity;
+
+
+        return `
+
+          <div class="monthRow">
+
+            <span>
+
+              ${r.date}<br>
+
+              ${escapeHtml(r.product)}
+
+            </span>
+
+
+            <span style="text-align:right">
+
+              支出
+              ${yen(expense)}
+              <br>
+
+              収入
+              ${yen(income)}
+
+            </span>
+
+          </div>
+
+        `;
+
+      }).join("")
+
+    }
+
+  `;
+
+}
+
+
+/* 年別集計 */
+
+function renderYear(){
+
+  const select =
+  document.getElementById("yearSelect");
+
+  if(!select) return;
+
+  const year =
+  select.value;
+
+  if(!year) return;
+
+
+  const list =
+  records.filter(r =>
+    r.date.startsWith(year)
+  );
+
+
+  let totalExpense = 0;
+
+  let totalIncome = 0;
+
+  let totalQuantity = 0;
+
+
+  list.forEach(r => {
+
+    totalExpense +=
+    r.expense * r.quantity;
+
+    totalIncome +=
+    r.income * r.quantity;
+
+    totalQuantity +=
+    r.quantity;
+
+  });
+
+
+  const profit =
+  totalIncome - totalExpense;
+
+
+  let monthly = {};
+
+
+  for(let i=1;i<=12;i++){
+
+    monthly[
+      String(i).padStart(2,"0")
+    ] = {
+
+      expense:0,
+
+      income:0,
+
+      quantity:0
+
+    };
+
+  }
+
+
+  list.forEach(r => {
+
+    const month =
+    r.date.substring(5,7);
+
+    monthly[month].expense +=
+    r.expense * r.quantity;
+
+    monthly[month].income +=
+    r.income * r.quantity;
+
+    monthly[month].quantity +=
+    r.quantity;
+
+  });
+
+
+  const area =
+  document.getElementById("yearSummary");
+
+
+  area.innerHTML = `
+
+    <div class="summary">
+
+      <div class="summaryBox">
+
+        <div class="summaryTitle">
+          年間支出
+        </div>
+
+        <div class="summaryValue expense">
+          ${yen(totalExpense)}
+        </div>
+
+      </div>
+
+
+      <div class="summaryBox">
+
+        <div class="summaryTitle">
+          年間収入
+        </div>
+
+        <div class="summaryValue income">
+          ${yen(totalIncome)}
+        </div>
+
+      </div>
+
+
+      <div class="summaryBox">
+
+        <div class="summaryTitle">
+          年間利益
+        </div>
+
+        <div class="summaryValue balance">
+          ${yen(profit)}
+        </div>
+
+      </div>
+
+
+      <div class="summaryBox">
+
+        <div class="summaryTitle">
+          年間数量
+        </div>
+
+        <div class="summaryValue">
+          ${totalQuantity}
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="yearBox">
+
+      <h3>
+        ${year}年 月別明細
+      </h3>
+
+
+      ${
+
+        Object.keys(monthly).map(month => {
+
+          const m =
+          monthly[month];
 
           return `
-            <div class="monthRow">
-              <span>
-                ${r.date}<br>
-                ${escapeHtml(r.product)}
-              </span>
 
-              <span style="text-align:right">
-                支出 ${yen(expense)}<br>
-                収入 ${yen(income)}
-              </span>
+            <div class="yearRow">
+
+              <div class="yearTitle">
+                ${Number(month)}月
+              </div>
+
+              支出：
+              ${yen(m.expense)}
+              <br>
+
+              収入：
+              ${yen(m.income)}
+              <br>
+
+              利益：
+              ${yen(m.income - m.expense)}
+              <br>
+
+              数量：
+              ${m.quantity}
+
             </div>
+
           `;
+
         }).join("")
-    }
+
+      }
+
+    </div>
+
   `;
+
 }
 
 
 /* HTML文字対策 */
+
 function escapeHtml(str){
 
   return String(str || "")
+
     .replace(/&/g,"&amp;")
+
     .replace(/</g,"&lt;")
+
     .replace(/>/g,"&gt;")
+
     .replace(/"/g,"&quot;")
+
     .replace(/'/g,"&#039;");
+
+}
+
+
+/* 月を印刷 */
+
+function printMonth(){
+
+  const month =
+  document.getElementById("monthSelect")
+  .value;
+
+  if(!month){
+
+    alert("月を選択してください");
+
+    return;
+
+  }
+
+
+  const list =
+  records.filter(r =>
+    r.date.startsWith(month)
+  );
+
+
+  if(list.length === 0){
+
+    alert("この月には登録データがありません");
+
+    return;
+
+  }
+
+
+  const title =
+  `${month.substring(0,4)}年
+  ${Number(month.substring(5,7))}月`;
+
+  createPrintPage(
+    title,
+    list
+  );
+
+}
+
+
+/* 年を印刷 */
+
+function printYear(){
+
+  const year =
+  document.getElementById("yearSelect")
+  .value;
+
+  const list =
+  records.filter(r =>
+    r.date.startsWith(year)
+  );
+
+
+  if(list.length === 0){
+
+    alert("この年には登録データがありません");
+
+    return;
+
+  }
+
+
+  createPrintPage(
+    `${year}年`,
+    list
+  );
+
+}
+
+
+/* 履歴を印刷 */
+
+function printHistory(){
+
+  if(records.length === 0){
+
+    alert("印刷するデータがありません");
+
+    return;
+
+  }
+
+
+  createPrintPage(
+    "登録履歴",
+    records
+  );
+
+}
+
+
+/* 印刷ページ作成 */
+
+function createPrintPage(title,list){
+
+  let totalExpense = 0;
+
+  let totalIncome = 0;
+
+  let totalQuantity = 0;
+
+
+  list.forEach(r => {
+
+    totalExpense +=
+    r.expense * r.quantity;
+
+    totalIncome +=
+    r.income * r.quantity;
+
+    totalQuantity +=
+    r.quantity;
+
+  });
+
+
+  const profit =
+  totalIncome - totalExpense;
+
+
+  const rows =
+  list.map(r => {
+
+    const expense =
+    r.expense * r.quantity;
+
+    const income =
+    r.income * r.quantity;
+
+    const p =
+    income - expense;
+
+
+    return `
+
+      <tr>
+
+        <td>${r.date}</td>
+
+        <td>${escapeHtml(r.store || "-")}</td>
+
+        <td>${escapeHtml(r.category)}</td>
+
+        <td>${escapeHtml(r.product)}</td>
+
+        <td>${r.quantity}</td>
+
+        <td>${yen(expense)}</td>
+
+        <td>${yen(income)}</td>
+
+        <td>${yen(p)}</td>
+
+      </tr>
+
+    `;
+
+  }).join("");
+
+
+  const printWindow =
+  window.open(
+    "",
+    "_blank"
+  );
+
+
+  printWindow.document.write(`
+
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>${title} - 管理簿</title>
+
+<style>
+
+body{
+
+  font-family:
+  -apple-system,
+  BlinkMacSystemFont,
+  "Yu Gothic",
+  sans-serif;
+
+  padding:25px;
+
+  color:#111;
+
+}
+
+h1{
+
+  text-align:center;
+
+  margin-bottom:25px;
+
+}
+
+.summary{
+
+  display:flex;
+
+  gap:20px;
+
+  margin-bottom:25px;
+
+}
+
+.box{
+
+  border:1px solid #999;
+
+  padding:12px;
+
+  flex:1;
+
+}
+
+table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+  font-size:12px;
+
+}
+
+th,td{
+
+  border:1px solid #999;
+
+  padding:7px;
+
+  text-align:center;
+
+}
+
+th{
+
+  background:#eee;
+
+}
+
+@media print{
+
+  body{
+
+    padding:0;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>📒 管理簿　${title}</h1>
+
+
+<div class="summary">
+
+  <div class="box">
+
+    支出<br>
+
+    <strong>
+      ${yen(totalExpense)}
+    </strong>
+
+  </div>
+
+
+  <div class="box">
+
+    収入<br>
+
+    <strong>
+      ${yen(totalIncome)}
+    </strong>
+
+  </div>
+
+
+  <div class="box">
+
+    利益<br>
+
+    <strong>
+      ${yen(profit)}
+    </strong>
+
+  </div>
+
+
+  <div class="box">
+
+    数量<br>
+
+    <strong>
+      ${totalQuantity}
+    </strong>
+
+  </div>
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>日付</th>
+
+<th>店名</th>
+
+<th>区分</th>
+
+<th>商品名</th>
+
+<th>数量</th>
+
+<th>支出</th>
+
+<th>収入</th>
+
+<th>利益</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+${rows}
+
+</tbody>
+
+</table>
+
+
+<script>
+
+window.onload=function(){
+
+  window.print();
+
+};
+
+<\/script>
+
+</body>
+
+</html>
+
+  `);
+
+
+  printWindow.document.close();
+
 }
 
 
 /* 起動時 */
+
+setupYearSelect();
+
 renderRecent();
+
 renderHistory();
+
 renderMonth();
+
+renderYear();
 
 </script>
 
